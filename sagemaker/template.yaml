@@ -380,12 +380,8 @@ Resources:
               -
                 Effect: "Allow"
                 Action:
-                  - "iam:PassRole"
+                  - "iam:*"
                 Resource: "*"
-                Condition:
-                  StringEquals:
-                    iam:PassedToService: sagemaker.amazonaws.com
-
 
   SagemakerBucket:
     Type: AWS::S3::Bucket
