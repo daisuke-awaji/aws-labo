@@ -234,13 +234,11 @@ Resources:
         - IpProtocol: "TCP"
           FromPort: 443
           ToPort: 443
-          CidrIp: 0.0.0.0/0
-          Description: "Public 443"
+          CidrIp: 126.163.148.157/32
         - IpProtocol: "TCP"
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-          Description: "Public 80"
+          CidrIp: 126.163.148.157/32
       Tags:
         - Key: Name
           Value: !Sub ${Environment}-public-security-group
@@ -270,15 +268,23 @@ Resources:
       ToPort: -1
       SourceSecurityGroupId: !Ref PrivateSecurityGroup
 
+
+  #  ____                                   _
+  # / ___|  __ _  __ _  ___ _ __ ___   __ _| | _____ _ __
+  # \___ \ / _` |/ _` |/ _ \ '_ ` _ \ / _` | |/ / _ \ '__|
+  #  ___) | (_| | (_| |  __/ | | | | | (_| |   <  __/ |
+  # |____/ \__,_|\__, |\___|_| |_| |_|\__,_|_|\_\___|_|
+  #              |___/
+
   NotebookInstance:
     Type: "AWS::SageMaker::NotebookInstance"
     Properties:
-      NotebookInstanceName: notebook
       InstanceType: ml.t2.medium
       # LifecycleConfigName: String
       SubnetId: !Ref PublicSubnet1
       SecurityGroupIds:
         - !Ref PublicSecurityGroup
+      DirectInternetAccess: Disabled
       RoleArn: !GetAtt NotebookInstanceRole.Arn
 
   NotebookInstanceRole:
@@ -382,6 +388,12 @@ Resources:
                 Action:
                   - "iam:*"
                 Resource: "*"
+
+  #  ____ _____   ____             _        _
+  # / ___|___ /  | __ ) _   _  ___| | _____| |_
+  # \___ \ |_ \  |  _ \| | | |/ __| |/ / _ \ __|
+  #  ___) |__) | | |_) | |_| | (__|   <  __/ |_
+  # |____/____/  |____/ \__,_|\___|_|\_\___|\__|
 
   SagemakerBucket:
     Type: AWS::S3::Bucket
