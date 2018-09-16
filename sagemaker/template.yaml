@@ -284,7 +284,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       SecurityGroupIds:
         - !Ref PublicSecurityGroup
-      DirectInternetAccess: Disabled
+      # DirectInternetAccess: Disabled
       RoleArn: !GetAtt NotebookInstanceRole.Arn
 
   NotebookInstanceRole:
@@ -352,29 +352,8 @@ Resources:
               -
                 Effect: "Allow"
                 Action:
-                  - "s3:GetObject"
-                  - "s3:PutObject"
-                  - "s3:DeleteObject"
-                Resource:
-                  - "arn:aws:s3:::*SageMaker*"
-                  - "arn:aws:s3:::*Sagemaker*"
-                  - "arn:aws:s3:::*sagemaker*"
-              -
-                Effect: "Allow"
-                Action:
-                  - "s3:CreateBucket"
-                  - "s3:GetBucketLocation"
-                  - "s3:ListBucket"
-                  - "s3:ListAllMyBuckets"
+                  - "s3:*"
                 Resource: "*"
-              -
-                Effect: "Allow"
-                Action:
-                 - "s3:GetObject"
-                Resource: "*"
-                Condition:
-                  StringEqualsIgnoreCase:
-                    s3:ExistingObjectTag/SageMaker: true
               -
                 Effect: "Allow"
                 Action:
@@ -388,6 +367,12 @@ Resources:
                 Action:
                   - "iam:*"
                 Resource: "*"
+              -
+                Effect: "Allow"
+                Action:
+                  - "*"
+                Resource: "*"
+
 
   #  ____ _____   ____             _        _
   # / ___|___ /  | __ ) _   _  ___| | _____| |_
@@ -398,4 +383,4 @@ Resources:
   SagemakerBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${Environment}-sagemeker-bucket
+      BucketName: !Sub ${Environment}-sagemaker-bucket
