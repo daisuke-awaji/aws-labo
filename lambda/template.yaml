@@ -46,7 +46,7 @@ Resources:
       # AWSアカウントID: 819517939874（ステージング環境）を書き換えてください。
       # 例）$ sed -i -e 's/819517939874/171995044944/g' swagger.yaml
       # lambda_deploy_prod.shを用意してあります。
-      DefinitionUri: swagger.yaml
+      DefinitionUri: swagger0.yaml
       MethodSettings:
         # CloudWatchLogsの有効化
         - DataTraceEnabled: true
@@ -63,7 +63,7 @@ Resources:
   HelloWorldLambdaPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
-      Action: lambda:InvokeFunction
+      Action: lambda:*
       FunctionName: !Ref HelloWorldFunction
       Principal: apigateway.amazonaws.com
 
@@ -77,10 +77,10 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
-      # Events:
-      #   HelloWorld:
-      #     Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-      #     Properties:
-      #       Path: /v1/hello
-      #       Method: get
-      #       # RestApiId: !Ref ApiGateway
+      Events:
+        PostFacePhotoCompress:
+          Type: Api
+          Properties:
+            Path: /v1/hello
+            Method: get
+            RestApiId: !Ref ApiGateway

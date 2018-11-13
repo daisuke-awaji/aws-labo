@@ -22,7 +22,7 @@ Parameters:
 Resources:
   ApiGateway:
     Properties:
-      DefinitionUri: s3://cf-templates-1875qzbk6w1st-us-east-1/e597f4259a7226fb34ac3c5f6c7da5de
+      DefinitionUri: s3://cf-templates-1875qzbk6w1st-us-east-1/bec075aa2052dbed54e4fbf26e6bf846
       MethodSettings:
       - DataTraceEnabled: true
         HttpMethod: '*'
@@ -39,6 +39,14 @@ Resources:
       Environment:
         Variables:
           PARAM1: VALUE
+      Events:
+        PostFacePhotoCompress:
+          Properties:
+            Method: get
+            Path: /v1/hello
+            RestApiId:
+              Ref: ApiGateway
+          Type: Api
       FunctionName:
         Fn::Sub: ${Env}-hello-world
       Handler: app.lambda_handler
@@ -46,7 +54,7 @@ Resources:
     Type: AWS::Serverless::Function
   HelloWorldLambdaPermission:
     Properties:
-      Action: lambda:InvokeFunction
+      Action: lambda:*
       FunctionName:
         Ref: HelloWorldFunction
       Principal: apigateway.amazonaws.com
