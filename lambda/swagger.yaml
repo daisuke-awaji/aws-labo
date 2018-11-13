@@ -1,0 +1,122 @@
+---
+swagger: "2.0"
+info:
+  version: "2018-07-04T00:32:46Z"
+
+# ステージ名
+basePath: "/Prod"
+schemes:
+- "https"
+
+# リソースのパス
+paths:
+  /v1/hello:
+    get:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "HelloReqModel"
+        required: true
+        schema:
+          $ref: "#/definitions/HelloReqModel"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/HelloResModel"
+        400:
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/MethodErrorResppnceModel"
+        500:
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/MethodErrorResppnceModel"
+      security:
+      - api_key: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348873090553:function:${stageVariables.Env}-hello-world:live/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST" # See. https://dev.classmethod.jp/server-side/serverless/sam-try-and-error/
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+
+# securityDefinitions:
+#   api_key:
+#     type: "apiKey"
+#     name: "x-api-key"
+#     in: "header"
+
+# モデルの定義
+definitions:
+  HelloReqModel:
+    title: "HelloReqModel"
+    type: "object"
+    properties:
+      HelloGetReq:
+        type: "object"
+        properties:
+          senderType:
+            type: "string"
+          readerId:
+            type: "string"
+          projectId:
+            type: "string"
+          inOutData:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                deviceType:
+                  type: "string"
+                deviceId:
+                  type: "string"
+                inOutTime:
+                  type: "string"
+                inOutType:
+                  type: "string"
+
+  HelloResModel:
+    title: "HelloResModel"
+    type: "object"
+    properties:
+      gateInOutPostRes:
+        type: "object"
+        properties:
+          senderType:
+            type: "string"
+          readerId:
+            type: "string"
+          projectId:
+            type: "string"
+          result:
+            type: "string"
+          headerErrors:
+            type: "array"
+            items:
+              type: "object"
+              properties:
+                field:
+                  type: "string"
+                code:
+                  type: "string"
+                message:
+                  type: "string"
+
+  MethodErrorResppnceModel:
+    title: "MethodErrorResppnceModel"
+    type: "object"
+    properties:
+      requestError:
+        type: "object"
+        properties:
+          code:
+            type: "string"
+          message:
+            type: "string"

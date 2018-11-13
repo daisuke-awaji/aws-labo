@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'lambda api, apigateway, dynamodb, s3
+
+  '
+Globals:
+  Api:
+    Name:
+      Fn::Sub: ${Env}-ccus-link-apigateway
+  Function:
+    AutoPublishAlias: live
+    DeploymentPreference:
+      Type: AllAtOnce
+    Environment:
+      Variables:
+        ENV:
+          Ref: Env
+        LOG_LEVEL: INFO
+        TZ: Asia/Tokyo
+Parameters:
+  Env:
+    Type: String
+Resources:
+  ApiGateway:
+    Properties:
+      DefinitionUri: s3://cf-templates-1875qzbk6w1st-us-east-1/e597f4259a7226fb34ac3c5f6c7da5de
+      MethodSettings:
+      - DataTraceEnabled: true
+        HttpMethod: '*'
+        LoggingLevel: ERROR
+        ResourcePath: /*
+      StageName: Prod
+      Variables:
+        Env:
+          Ref: Env
+    Type: AWS::Serverless::Api
+  HelloWorldFunction:
+    Properties:
+      CodeUri: s3://cf-templates-1875qzbk6w1st-us-east-1/e9b13c589fe84da0c0a9126982523e7d
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      FunctionName:
+        Fn::Sub: ${Env}-hello-world
+      Handler: app.lambda_handler
+      Runtime: python3.6
+    Type: AWS::Serverless::Function
+  HelloWorldLambdaPermission:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: HelloWorldFunction
+      Principal: apigateway.amazonaws.com
+    Type: AWS::Lambda::Permission
+Transform: AWS::Serverless-2016-10-31

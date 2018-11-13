@@ -1,0 +1,39 @@
+---
+swagger: "2.0"
+info:
+  version: "2018-07-04T00:32:46Z"
+
+# ステージ名
+basePath: "/Prod"
+schemes:
+- "https"
+
+# リソースのパス
+paths:
+  /v1/hello:
+    get:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "HelloReqModel"
+        required: true
+      security:
+      - api_key: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-1:348873090553:function:${stageVariables.Env}-hello-world:live/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST" # See. https://dev.classmethod.jp/server-side/serverless/sam-try-and-error/
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+
+# securityDefinitions:
+#   api_key:
+#     type: "apiKey"
+#     name: "x-api-key"
+#     in: "header"
