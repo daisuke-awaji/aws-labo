@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda api, apigateway, dynamodb, s3
+
+Parameters:
+  Env:
+    Type: String
+
+# SAMテンプレート共通の設定
+Globals:
+  Api:
+    # APIGatewayの名前はswagger.yamlに書くのではなく、ここに記入する
+    # swagger.yamlにはステージ変数しか渡すことができないため、swagger.yamlで環境ごとの差異を吸収することができない
+    Name: !Sub ${Env}-ccus-link-apigateway
+  Function:
+    Timeout: 180
+    # エイリアスを使用してLambdaをバージョン管理する
+    AutoPublishAlias: live
+    # 一度に全てのトラフィックを新しいLambdaに移行する
+    DeploymentPreference:
+      Type: AllAtOnce
+    # 環境変数
+    Environment:
+      Variables:
+        ENV: !Ref Env
+        TZ: Asia/Tokyo
+        LOG_LEVEL: 'INFO'
+
+Resources:
+
+  #     _    ____ ___    ____    _  _____ _______        ___ __   __
+  #    / \  |  _ \_ _|  / ___|  / \|_   _| ____\ \      / / \\ \ / /
+  #   / _ \ | |_) | |  | |  _  / _ \ | | |  _|  \ \ /\ / / _ \\ V /
+  #  / ___ \|  __/| |  | |_| |/ ___ \| | | |___  \ V  V / ___ \| |
+  # /_/   \_\_|  |___|  \____/_/   \_\_| |_____|  \_/\_/_/   \_\_|
+
+  # Lambda用のAPIGateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      # ここで指定するステージの他にデフォルトで "Stage"というステージが作られます
+      StageName: "Prod"
+      # DefinitionUriではCloudformationの関数 !IF, !Subなどが使えません
+      # See. https://github.com/awslabs/serverless-application-model/issues/181
+      # 本番環境にデプロイする場合は packageコマンド実行前に、swagger.yaml内の
+      # AWSアカウントID: 819517939874（ステージング環境）を書き換えてください。
+      # 例）$ sed -i -e 's/819517939874/171995044944/g' swagger.yaml
+      # lambda_deploy_prod.shを用意してあります。
+      DefinitionUri: swagger.yaml
+      MethodSettings:
+        # CloudWatchLogsの有効化
+        - DataTraceEnabled: true
+          LoggingLevel: 'ERROR'
+          ResourcePath: '/*'
+          HttpMethod: '*'
+      # ステージ変数 swagger.yamlでは ${stageVariables.Env} として参照することができます。
+      # swagger.yamlはステージ変数としてAWS::AccountIdやAWS::Regionを保持させるとswagger.yaml内で読み込むことができません。
+      # AWSリージョンとAWSアカウントIDが含まれるLambda関数のARNを一気に渡しても読み込めません。
+      # See. https://github.com/awslabs/serverless-application-model/issues/87
+      Variables:
+        Env: !Ref Env
+
+  HelloWorldLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref HelloWorldFunction
+      Principal: apigateway.amazonaws.com
+
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      FunctionName: !Sub ${Env}-hello-world
+      CodeUri: hello_world/build/
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+      Events:
+        PostFacePhotoCompress:
+          Type: Api
+          Properties:
+            Path: /v1/hello
+            Method: get
+            RestApiId: !Ref ApiGateway
