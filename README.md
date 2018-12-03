@@ -23,6 +23,9 @@ With this template, the following resources are constructed.
 - PublicSecurityGroup
 - PrivateSecurityGroup
 
+# Jenkins EFS
+
+![jenkins](./jenkins/jenkins-efs.png)
 
 # Fargate web containers
 
