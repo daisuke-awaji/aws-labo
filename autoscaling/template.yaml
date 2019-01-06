@@ -516,7 +516,7 @@ Resources:
   SpotInstanceLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: ami-0bae405b72ca60711 # nginx
+      ImageId: ami-0b4a7ef2e4f65e2ec # nginx
       IamInstanceProfile: !Ref EC2InstanceProfile
       SecurityGroups:
         - !Ref EC2SecurityGroup
@@ -595,7 +595,7 @@ Resources:
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub ${Env}-jenkins-alb-autoscaling
+      Name: !Sub ${Env}-nginx-alb-autoscaling
       Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
